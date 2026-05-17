@@ -5,7 +5,7 @@ Minimal Azure Terraform demo: one Ubuntu VM with Apache via cloud-init. With a s
 ## Azure Cloud Shell (quick start)
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/keab93
 cd IaC_project/terraform
 
 # create an SSH key in Cloud Shell
