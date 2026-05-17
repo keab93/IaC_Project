@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# location: /usr/sbin/usr_mngt
+# location ref: https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch04s10.html#purpose25
+set -euo pipefail
+
+
+if [[ "$#" -ne 1 ]]; then
+  printf 'Error: Script requires exactly one argument (path to CSV file).\n' >&2
+  exit 1
+fi
+
+file="${1}"
+
+if [[ ! -f "$file" ]]; then
+  printf 'Error: CSV not found: %s\n' "$file" >&2
+  exit 1
+fi
+
+
+out_log="./usr-mgmt.out.log"
+
+exec 1> >(tee -a "$out_log")
+
+
+
+while IFS=, read -r -- firstName lastName password operation; do
+  username="${firstName:0:3}${lastName:0:3}"
+
+  case "$operation" in
+    add)
+      if id -u -- "$username" >/dev/null 2>&1; then
+        echo "User already exists: $username" >&2
+        continue
+      fi
+
+      if adduser --disabled-password --gecos "" "$username" >/dev/null 2>&1; then
+        echo "Add $username" 
+        if printf '%s:%s\n' "$username" "$password" | chpasswd >/dev/null 2>&1; then
+          echo "Setting password for $username" 
+        else
+          echo "Failed to set password for $username" >&2
+        fi
+      else
+        echo "Failed to add user: $username" >&2
+        continue
+      fi
+      ;;
+    remove)
+      if id -u -- "$username" >/dev/null 2>&1; then
+        if userdel -r "$username" >/dev/null 2>&1; then
+          echo "Remove $username"
+        else
+          echo "Failed to remove user: $username" >&2
+        fi
+      else 
+        echo "No such user: $username" >&2
+      fi
+      ;;
+    *)
+      echo "unknown operation: $operation" >&2
+      continue
+      ;;
+  esac
+done < "$file"
+
+
