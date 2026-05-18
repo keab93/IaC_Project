@@ -10,20 +10,32 @@ variable "location" {
   default     = "swedencentral"
 }
 
-variable "vm_size" {
+variable "dns_name_label" {
   type        = string
-  description = "Azure VM size."
-  default     = "Standard_B1s"
+  description = "DNS label for the container group (must be globally unique)."
+  default     = "iac-demo-aci"
 }
 
-variable "admin_username" {
+variable "container_image" {
   type        = string
-  description = "Admin username for the VM."
-  default     = "demoadmin"
+  description = "Container image to run."
+  default     = "mcr.microsoft.com/azuredocs/aci-helloworld:latest"
 }
 
-variable "ssh_public_key_path" {
-  type        = string
-  description = "Path to the SSH public key to authorize."
-  default     = "~/.ssh/id_ed25519.pub"
+variable "container_cpu" {
+  type        = number
+  description = "CPU cores for the container."
+  default     = 0.5
+}
+
+variable "container_memory" {
+  type        = number
+  description = "Memory (GB) for the container."
+  default     = 1.0
+}
+
+variable "container_port" {
+  type        = number
+  description = "TCP port exposed by the container."
+  default     = 80
 }
