@@ -5,7 +5,7 @@ Minimal Azure Terraform demo: one Azure Container Instance running a public web 
 ## Azure Cloud Shell (quick start)
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/keab93/IaC_project.git
 cd IaC_project/terraform
 
 terraform init
