@@ -1,7 +1,7 @@
 variable "project_name" {
   type        = string
   description = "Prefix for all Azure resource names."
-  default     = "iac-demo"
+  default     = "iac-demonstration"
 }
 
 variable "location" {
@@ -13,13 +13,13 @@ variable "location" {
 variable "dns_name_label" {
   type        = string
   description = "DNS label for the container group (must be globally unique)."
-  default     = "iac-demo-aci"
+  default     = "iac-demonstation-aci"
 }
 
 variable "container_image" {
   type        = string
   description = "Container image to run."
-  default     = "mcr.microsoft.com/azuredocs/aci-helloworld:latest"
+  default     = "mcr.microsoft.com/oss/nginx/nginx:1.9.15-alpine"
 }
 
 variable "container_cpu" {
