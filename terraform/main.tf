@@ -68,7 +68,7 @@ resource "azurerm_container_group" "aci" {
       protocol = "TCP"
     }
   }
-
+# User management container definition
   container {
     name   = "usermgmt"
     image  = "${data.azurerm_container_registry.acr.login_server}/usermgmt:latest"
