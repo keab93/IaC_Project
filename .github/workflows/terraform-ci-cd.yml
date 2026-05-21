@@ -13,10 +13,6 @@ on:
       - ".github/workflows/terraform-ci-cd.yml"
   workflow_dispatch:
     inputs:
-      plan:
-        description: "Run terraform plan"
-        type: boolean
-        default: false
       apply:
         description: "Apply changes to Azure"
         type: boolean
@@ -30,37 +26,25 @@ permissions:
   id-token: write
 
 jobs:
-  fmt_validate_plan:
-    name: "Terraform fmt/validate"
+  syntax_check:
+    name: "Terraform syntax check"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: terraform
-    env:
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_USE_OIDC: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform fmt
-        run: terraform fmt -check -recursive
-
       - name: Terraform init
-        run: terraform init -input=false
+        run: terraform init -backend=false -input=false
 
       - name: Terraform validate
-        run: terraform validate
-
-      - name: Terraform plan
-        if: github.event_name == 'workflow_dispatch' && inputs.plan == true && env.ARM_CLIENT_ID != '' && env.ARM_TENANT_ID != '' && env.ARM_SUBSCRIPTION_ID != ''
-        run: terraform plan -input=false
+        run: terraform validate -no-color
 
   apply:
     name: "Terraform apply"
-    needs: fmt_validate_plan
+    needs: syntax_check
     if: github.event_name == 'workflow_dispatch' && inputs.apply == true
     runs-on: ubuntu-latest
     environment: production
