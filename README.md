@@ -1,6 +1,6 @@
 # IaC Project
 
-Cloud deployment: Two Azure Container Instances running a public web container with a simple script for automated user management.
+Cloud deploymen using ACI and ACR on Azure using Terraform as the main IaC tool. Github actions for CI/CD of the Terraform automation.
 
 ## Azure Cloud Shell
 
@@ -14,7 +14,7 @@ terraform init
 terraform apply
 ```
 
-To clean up:
+To destroy:
 
 ```bash
 terraform destroy
