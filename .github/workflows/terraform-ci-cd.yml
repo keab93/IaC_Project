@@ -13,6 +13,10 @@ on:
       - ".github/workflows/terraform-ci-cd.yml"
   workflow_dispatch:
     inputs:
+      plan:
+        description: "Run terraform plan"
+        type: boolean
+        default: false
       apply:
         description: "Apply changes to Azure"
         type: boolean
@@ -27,7 +31,7 @@ permissions:
 
 jobs:
   fmt_validate_plan:
-    name: "Terraform fmt/validate/plan"
+    name: "Terraform fmt/validate"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,7 +55,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform plan
-        if: env.ARM_CLIENT_ID != '' && env.ARM_TENANT_ID != '' && env.ARM_SUBSCRIPTION_ID != ''
+        if: github.event_name == 'workflow_dispatch' && inputs.plan == true && env.ARM_CLIENT_ID != '' && env.ARM_TENANT_ID != '' && env.ARM_SUBSCRIPTION_ID != ''
         run: terraform plan -input=false
 
   apply:
