@@ -1,0 +1,17 @@
+FROM alpine:latest
+
+# Install bash
+RUN apk add --no-cache bash
+
+# Create working directory
+WORKDIR /app
+
+# Copy the user management script and CSV data
+COPY bin/user_mngt /usr/sbin/user_mngt
+COPY data/user_data_operations.csv /app/user_data_operations.csv
+
+# Make script executable
+RUN chmod +x /usr/sbin/user_mngt
+
+# Run the user management script
+CMD ["/usr/sbin/user_mngt", "/app/user_data_operations.csv"]

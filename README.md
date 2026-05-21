@@ -1,8 +1,10 @@
 # IaC Project
 
-Minimal Azure Terraform demo: one Azure Container Instance running a public web container. With a simple script for automated user management.
+Cloud deployment: Two Azure Container Instances running a public web container with a simple script for automated user management.
 
-## Azure Cloud Shell (quick start)
+## Azure Cloud Shell
+
+After placing the user management container images in ACR and updating variables.tf with correct image names, you can deploy the infrastructure using Azure Cloud Shell:
 
 ```bash
 git clone https://github.com/keab93/IaC_project.git
