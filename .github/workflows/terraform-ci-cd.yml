@@ -1,0 +1,86 @@
+name: terraform-ci-cd
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform-ci-cd.yml"
+  push:
+    branches:
+      - "main"
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform-ci-cd.yml"
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply changes to Azure"
+        type: boolean
+        default: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  fmt_validate_plan:
+    name: "Terraform fmt/validate/plan"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        if: env.ARM_CLIENT_ID != '' && env.ARM_TENANT_ID != '' && env.ARM_SUBSCRIPTION_ID != ''
+        run: terraform plan -input=false
+
+  apply:
+    name: "Terraform apply"
+    needs: fmt_validate_plan
+    if: github.event_name == 'workflow_dispatch' && inputs.apply == true
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Ensure remote backend configured
+        run: |
+          if ! grep -R --line-number 'backend "azurerm"' ./*.tf >/dev/null; then
+            echo "Remote backend not configured. Configure azurerm backend before apply in CI."
+            exit 1
+          fi
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve -input=false

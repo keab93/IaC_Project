@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # location: /usr/sbin/usr_mngt
-# location ref: https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch04s10.html#purpose25
 set -euo pipefail
 
 
