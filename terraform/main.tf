@@ -57,6 +57,7 @@ resource "azurerm_container_group" "aci" {
 
   depends_on = [azurerm_role_assignment.acr_pull]
 
+# Web container definition
   container {
     name   = "web"
     image  = var.container_image
