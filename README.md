@@ -4,7 +4,7 @@ Cloud deploymen using ACI and ACR on Azure using Terraform as the main IaC tool.
 
 ## Azure Cloud Shell
 
-After placing the user management container images in ACR and updating variables.tf with correct image names, you can deploy the infrastructure using Azure Cloud Shell:
+After placing the user management container images in ACR and updating variables.tf with correct image names, registry addresses and configurations, you can deploy the infrastructure using Azure Cloud Shell:
 
 ```bash
 git clone https://github.com/keab93/IaC_project.git
