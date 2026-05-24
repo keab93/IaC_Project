@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # location: /usr/sbin/usr_mngt
 set -euo pipefail
 
