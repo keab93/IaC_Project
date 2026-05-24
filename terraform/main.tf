@@ -43,7 +43,7 @@ resource "azurerm_container_group" "aci" {
   ip_address_type     = "Public"
   dns_name_label      = var.dns_name_label
   os_type             = "Linux"
-  restart_policy      = "Always"
+  restart_policy      = "Never"
 
   identity {
     type         = "UserAssigned"
