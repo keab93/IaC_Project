@@ -28,12 +28,6 @@ variable "usermgmt_image" {
   default     = "kenanatridesreg1.azurecr.io/usermgmt:latest"
 }
 
-variable "usermgmt_port" {
-  type        = number
-  description = "TCP port exposed by the user management container."
-  default     = 82
-}
-
 variable "container_cpu" {
   type        = number
   description = "CPU cores for the container."
