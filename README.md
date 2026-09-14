@@ -12,7 +12,7 @@ The two containers used to live in a single container group. I have split them i
 
 ### TODO
 
-- The container batch job should run against a VM (via cloud-init).
+- The container batch job should run against a VM (via cloud-init) in order to get persistent filesystem state.
 - Pass ACR name as a variable instead of hardcoding it.
 
 ## Azure Cloud Shell
