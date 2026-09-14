@@ -36,14 +36,16 @@ resource "azurerm_role_assignment" "acr_pull" {
   principal_id         = azurerm_user_assigned_identity.container_identity.principal_id
 }
 
-resource "azurerm_container_group" "aci" {
-  name                = "${var.project_name}-cg"
+
+# Long-running web service: gets a public IP/DNS name and restarts if it crashes.
+resource "azurerm_container_group" "web" {
+  name                = "${var.project_name}-web-cg"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg.name
   ip_address_type     = "Public"
   dns_name_label      = var.dns_name_label
   os_type             = "Linux"
-  restart_policy      = "Never"
+  restart_policy      = "Always"
 
   identity {
     type         = "UserAssigned"
@@ -51,12 +53,12 @@ resource "azurerm_container_group" "aci" {
   }
 
   image_registry_credential {
-    server                   = data.azurerm_container_registry.acr.login_server
+    server                    = data.azurerm_container_registry.acr.login_server
     user_assigned_identity_id = azurerm_user_assigned_identity.container_identity.id
   }
 
   depends_on = [azurerm_role_assignment.acr_pull]
-# Definition of web container
+
   container {
     name   = "web"
     image  = var.container_image
@@ -68,17 +70,42 @@ resource "azurerm_container_group" "aci" {
       protocol = "TCP"
     }
   }
-# User management container definition
+
+  tags = {
+    project = var.project_name
+  }
+}
+
+# One-shot provisioning job: runs the user management script once and exits.
+# This container group is a batch job.
+# NEXT STEP: move this off ACI to a runtime with a persistent filesystem
+# (e.g. a VM via cloud-init, or an Azure Automation runbook) so created
+# users survive past a single container lifetime.
+resource "azurerm_container_group" "usermgmt" {
+  name                = "${var.project_name}-usermgmt-cg"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  ip_address_type     = "None"
+  os_type             = "Linux"
+  restart_policy      = "Never"
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.container_identity.id]
+  }
+
+  image_registry_credential {
+    server                    = data.azurerm_container_registry.acr.login_server
+    user_assigned_identity_id = azurerm_user_assigned_identity.container_identity.id
+  }
+
+  depends_on = [azurerm_role_assignment.acr_pull]
+
   container {
     name   = "usermgmt"
     image  = "${data.azurerm_container_registry.acr.login_server}/usermgmt:latest"
     cpu    = var.usermgmt_cpu
     memory = var.usermgmt_memory
-
-    ports {
-      port     = var.usermgmt_port
-      protocol = "TCP"
-    }
   }
 
   tags = {
